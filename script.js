@@ -3,42 +3,42 @@ const nodemailer = require('nodemailer');
 
 const { getHTML, getLinks, getParsedPageData } = require('./scraper');
 
-const mainLink = 'https://www.aruodas.lt/butai/vilniuje/?FOrder=AddDate';
+const mainLink = 'https://www.aruodas.lt/butai/vilniuje/?FOrder=AddDate&FQuartal=1%2C12%2C16%2C18%2C24';
 const dbData = [];
 
-const getPaginationLink = page => `https://www.aruodas.lt/butai/vilniuje/puslapis/${page}/?FOrder=AddDate`;
+const getPaginationLink = page => `https://www.aruodas.lt/butai/vilniuje/puslapis/${page}/?FOrder=AddDate&FQuartal=1%2C12%2C16%2C18%2C24`;
 
-const calculateDate = int => int < 10 ? `0${int}` : int;
+const calcDate = int => int < 10 ? `0${int}` : int;
 
 const getDate = () => {
 	const date = new Date();
 	const year = date.getFullYear();
-	const month = calculateDate(date.getMonth() + 1);
-	const day = calculateDate(date.getDate());
-	const hours = calculateDate(date.getHours());
-	const minutes = calculateDate(date.getMinutes());
-
+	const month = calcDate(date.getMonth() + 1);
+	const day = calcDate(date.getDate());
+	const hours = calcDate(date.getHours());
+	const minutes = calcDate(date.getMinutes());
 	return `${year}/${month}/${day}-${hours}:${minutes}`;
 }
 
 const generateEmailBody = data => {
+	const dataTitles = ['url', 'Kaina', 'Kaina už kvadratą', 'Rajonas', 'Gatve', 'Dydis', 'Plotas', 'Metai', 'Papildomos patalpos'];
 	let html = '<html><body>';
+	let header = '';
+	dataTitles.forEach(title => {
+		header += `<th style="border: 1px solid black;border-collapse:collapse;table-layout:fixed;padding:5px;text-align:left;width:100px;">${title}</th>`
+	})
+	header = '<tr>' + header + '</tr>';
 	data.forEach(item => {
 		let table = '<table style="width:100%;table-layout:fixed;border:1px solid black;border-collapse:collapse;">';
-		let header = '';
 		let tableData = '';
-		for (let key in item) {
-			if (key !== 'Aprašymas') {
-				header += `<th style="border: 1px solid black;border-collapse:collapse;table-layout:fixed;padding:5px;text-align:left;width:100px;">${key}</th>`
-				let dataRow = key === 'url' ? `<a href='${item[key]}'>link<a/>` : item[key];
-				tableData += `<td style="border: 1px solid black;border-collapse:collapse;table-layout:fixed;padding:5px;text-align:left;width:100px;">${dataRow}</td>`;
-			}
-		}
-		table += '<tr>' + header + '</tr><tr>' + tableData + '</tr>';
+		dataTitles.forEach(title => {
+			let dataRow = title === 'url' ? `<a href='${item[title]}'>link<a/>` : item[title];
+			tableData += `<td style="border: 1px solid black;border-collapse:collapse;table-layout:fixed;padding:5px;text-align:left;width:100px;">${dataRow || 'Nenurodyta'}</td>`;
+		})
+		table += header + '<tr>' + tableData + '</tr>';
 		html += table + '</table><br>';
 	})
 	html += '</body></html>';
-
 	return html;
 };
 
@@ -69,7 +69,7 @@ const sendEmail = content => {
 		service: 'yahoo',
 		secure: false,
 		auth: {
-			user: 'your@email.com',
+			user: 'email@email.com',
 			pass: 'password'
 		},
 		debug: false,
@@ -77,8 +77,8 @@ const sendEmail = content => {
 	});
 
 	const mailOptions = {
-		from: 'your@email.com',
-		to: 'receiver@email.com',
+		from: 'email@email.com',
+		to: 'email@email.com',
 		subject: `Nauji skelbimai ${getDate()}`,
 		html: content
 	};
