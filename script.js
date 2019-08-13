@@ -69,16 +69,16 @@ const sendEmail = content => {
 		service: 'yahoo',
 		secure: false,
 		auth: {
-			user: 'email@email.com',
-			pass: 'password'
+			user: 'mailas@kazkoks.lt',
+			pass: 'slaptazodis'
 		},
 		debug: false,
 		logger: true
 	});
 
 	const mailOptions = {
-		from: 'email@email.com',
-		to: 'email@email.com',
+		from: 'mailas@kazkoks.lt',
+		to: 'julius.liubertas@gmail.com, kitas@emailas.lt',
 		subject: `Nauji skelbimai ${getDate()}`,
 		html: content
 	};
@@ -93,6 +93,5 @@ const sendEmail = content => {
 }
 
 cron.schedule('0 8 * * *', () => {
-	console.log('cron started');
 	main();
 });
